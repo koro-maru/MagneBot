@@ -27,7 +27,7 @@ magneBot.on('message', msg => {
     switch (true) {
       case /!ti|!teaminfo/.test(cmd):
         console.log('teaminfo');
-        teamQuery.teamInfo.teamInfo(msg, args[1]);
+        teamQuery.teamInfo.teamData(msg, args[1]);
         break;
       case /!simpeventinfo|!event(info)?|!ei/.test(cmd):
         console.log("eventinfo");
@@ -51,19 +51,13 @@ magneBot.on('message', msg => {
         }
         break;
       case /^!playoffdata$|^!pd$/.test(cmd):
-        if(args.length===3){ 
-          teamQuery.teamInfo.playoffRecord(msg, args[1], args[2])
-        }
-        else if (args.length==2){
-          teamQuery.teamInfo.playoffRecord(msg, args[1])
+        if(args.length>=2){ 
+          teamQuery.teamInfo.playoffRecord(msg, args[1], args[2], args[3])
         }
       break;
       case /^!qualdata$|^!qd$/.test(cmd):
-        if(args.length===3){ 
-          teamQuery.teamInfo.qualRecord(msg, args[1], args[2])
-        }
-        else if (args.length==2){
-          teamQuery.teamInfo.qualRecord(msg, args[1])
+        if(args.length>=2){ 
+          teamQuery.teamInfo.qualRecord(msg, args[1], args[2], args[3])
         }
       break;
       case /^!eventlist$|^!el$/.test(cmd):

@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 module.exports = {
     teamInfo: teamInfo = {
         "help": help,
-        "teamInfo": getTeamInfo,
+        "teamData": getTeamInfo,
         "teamRobots":getTeamRobots,
         "qualRecord": getQualRecord,
         "playoffRecord": getPlayoffRecord,
@@ -19,9 +19,21 @@ const headers = {
     'X-TBA-Auth-Key': process.env.AUTH_KEY,
     'content-type': 'application/json'
 }
+async function getTeamData(team) {
+    try {
+        const response = await fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}`, { headers: headers })
+        const teamInfo = await response.json();
+        if (await teamInfo.key === undefined) {
+            throw new Error("Team does not exist")
+        }
+        return teamInfo;
+    } catch (error) {
+        throw error;
+    }
+}
 
-function getTeamInfo(msg, args) {
-    getTeamInfo(args).then(res => {
+function getTeamInfo(msg, team) {
+    getTeamData(team).then(res => {
         return objFormatter(res);
     }).then((res => {
         console.log(res)
@@ -38,18 +50,6 @@ function getTeamInfo(msg, args) {
     })).catch(() => {
         msg.channel.send("That team does not exist.")
     })
-}
-async function teamInfo(team) {
-    try {
-        const response = await fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}`, { headers: headers })
-        const teamInfo = await response.json();
-        if (await teamInfo.key === undefined) {
-            throw new Error("Team does not exist")
-        }
-        return teamInfo;
-    } catch (error) {
-        throw error;
-    }
 }
 
 function getTeamRobots(msg, team, year) {
@@ -77,10 +77,12 @@ function getTeamRobots(msg, team, year) {
 
 async function getTeamStatus(team, year, event) {
     if(!event){
-            data = await getTeamEvents(team,year)
-            event = await data[0];
+            data = await getTeamEvents(team, year)
+            event = await data[0].key;
+            let x = `https://www.thebluealliance.com/api/v3/team/frc${team}/event/${event}/status`
+            console.log(x)
     }
-     const status = await fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/event/${event.key}/status`, {headers : headers })
+     const status = await fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/event/${event}/status`, {headers : headers })
      if(!status){
          console.log(error)
          throw new Error("Something went wrong.");
@@ -217,7 +219,7 @@ function getPlayoffRecord(msg, team, year, event){
         Ties: ${res.playoff.current_level_record.ties}`
     )}
     else{   
-        msg.channel.send("That team is not in playoffs.")
+        msg.channel.send("That team is not in playoffs or was not in playoffs in their latest event.")
     }
 }).catch(error => {
         console.log(error)
